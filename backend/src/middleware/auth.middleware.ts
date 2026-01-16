@@ -6,6 +6,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../utils/jwt.util';
+import { authConfig } from '../config/auth.config';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -25,18 +26,23 @@ declare global {
 
 /**
  * Middleware to verify JWT access token and attach user to request
- * Expects token in Authorization header: "Bearer <token>"
+ * Expects token in Authorization header: "Bearer <token>" or in HttpOnly cookie
  */
 export async function authenticateToken(
-  req: Request, 
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
-    
+
     // Extract token from Authorization header
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer TOKEN"
+    let token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer TOKEN"
+
+    // If not in header, check cookie
+    if (!token && req.cookies) {
+      token = req.cookies[authConfig.jwt.accessToken.cookieName];
+    }
 
     if (!token) {
       res.status(401).json({
@@ -62,10 +68,11 @@ export async function authenticateToken(
       where: { id: decoded.userId },
       select: {
         id: true,
-        name:true,
+        name: true,
         email: true,
         lockedUntil: true,
         emailVerified: true,
+        // We select the token version or last logout time here if we had it
       },
     });
 
@@ -89,7 +96,7 @@ export async function authenticateToken(
     // Attach user info to request for downstream handlers
     req.user = {
       userId: user.id,
-      name:user.name,
+      name: user.name,
       email: user.email,
     };
 
@@ -114,7 +121,11 @@ export async function optionalAuth(
 ): Promise<void> {
   try {
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
+    let token = authHeader && authHeader.split(' ')[1];
+
+    if (!token && req.cookies) {
+      token = req.cookies[authConfig.jwt.accessToken.cookieName];
+    }
 
     if (token) {
       const decoded = verifyAccessToken(token);

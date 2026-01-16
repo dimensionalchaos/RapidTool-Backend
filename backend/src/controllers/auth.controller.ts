@@ -127,6 +127,13 @@ export async function login(req: Request, res: Response): Promise<void> {
       authConfig.jwt.refreshToken.cookieOptions
     );
 
+    // Set access token in HttpOnly cookie
+    res.cookie(
+      authConfig.jwt.accessToken.cookieName,
+      tokens.accessToken,
+      authConfig.jwt.accessToken.cookieOptions
+    );
+
     res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -137,7 +144,7 @@ export async function login(req: Request, res: Response): Promise<void> {
           email: user.email,
           emailVerified: user.emailVerified,
         },
-        accessToken: tokens.accessToken,
+        accessToken: tokens.accessToken, // Keep returning it for backward compatibility if needed, but not strictly necessary for cookie-only
       },
     });
   } catch (error) {
@@ -201,6 +208,13 @@ export async function refresh(req: Request, res: Response): Promise<void> {
       authConfig.jwt.refreshToken.cookieOptions
     );
 
+    // Set new access token in cookie
+    res.cookie(
+      authConfig.jwt.accessToken.cookieName,
+      tokens.accessToken,
+      authConfig.jwt.accessToken.cookieOptions
+    );
+
     res.status(200).json({
       success: true,
       message: 'Token refreshed successfully',
@@ -252,6 +266,12 @@ export async function logout(req: Request, res: Response): Promise<void> {
     res.clearCookie(
       authConfig.jwt.refreshToken.cookieName,
       authConfig.jwt.refreshToken.cookieOptions
+    );
+
+    // Clear access token cookie
+    res.clearCookie(
+      authConfig.jwt.accessToken.cookieName,
+      authConfig.jwt.accessToken.cookieOptions
     );
 
     res.status(200).json({

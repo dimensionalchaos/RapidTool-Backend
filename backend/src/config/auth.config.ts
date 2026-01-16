@@ -8,13 +8,21 @@
 export const authConfig = {
   // JWT Configuration
   jwt: {
-    // Access token: short-lived, stored in memory on client
+    // Access token: short-lived, stored in memory on client or HttpOnly cookie
     accessToken: {
       secret: process.env.JWT_ACCESS_SECRET || 'change-this-in-production-access-secret',
       expiresIn: process.env.JWT_ACCESS_EXPIRES || '15m', // 15 minutes
       algorithm: 'HS256' as const,
+      cookieName: 'access_token',
+      cookieOptions: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax' as const,
+        maxAge: 15 * 60 * 1000, // 15 minutes
+        path: '/',
+      },
     },
-    
+
     // Refresh token: long-lived, stored in HttpOnly cookie
     refreshToken: {
       secret: process.env.JWT_REFRESH_SECRET || 'change-this-in-production-refresh-secret',
@@ -24,9 +32,9 @@ export const authConfig = {
       cookieOptions: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-        sameSite: 'strict' as const,
+        sameSite: 'lax' as const, // Allow cross-port cookie sharing
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-        path: '/api/auth',
+        path: '/',
       },
     },
   },
@@ -64,14 +72,14 @@ export const authConfig = {
       max: 5, // 5 attempts per window
       message: 'Too many login attempts, please try again later',
     },
-    
+
     // Registration endpoint
     register: {
       windowMs: 60 * 60 * 1000, // 1 hour
       max: 3, // 3 registrations per hour per IP
       message: 'Too many registration attempts, please try again later',
     },
-    
+
     // Password reset request
     resetRequest: {
       windowMs: 60 * 60 * 1000, // 1 hour
@@ -93,7 +101,7 @@ export function validateAuthConfig(): void {
     ];
 
     const missing = requiredVars.filter(varName => !process.env[varName]);
-    
+
     if (missing.length > 0) {
       throw new Error(
         `Missing required environment variables in production: ${missing.join(', ')}`
