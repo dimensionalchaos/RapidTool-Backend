@@ -26,6 +26,7 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^7.0.12",
     "postgres": "^3.4.7",
+    "prisma": "5.22.0",
     "three": "^0.166.1",
     "three-bvh-csg": "^0.0.17",
     "three-mesh-bvh": "^0.9.1",
@@ -51,7 +52,6 @@
     "eslint": "^8.56.0",
     "jest": "^29.7.0",
     "nodemon": "^3.0.2",
-    "prisma": "5.22.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
