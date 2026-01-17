@@ -20,6 +20,7 @@ export const authConfig = {
         sameSite: 'lax' as const,
         maxAge: 15 * 60 * 1000, // 15 minutes
         path: '/',
+        domain: process.env.NODE_ENV === 'production' ? '.appliedadditive.com' : undefined,
       },
     },
 
@@ -35,6 +36,7 @@ export const authConfig = {
         sameSite: 'lax' as const, // Allow cross-port cookie sharing
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
         path: '/',
+        domain: process.env.NODE_ENV === 'production' ? '.appliedadditive.com' : undefined,
       },
     },
   },

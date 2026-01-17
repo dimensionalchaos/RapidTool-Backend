@@ -40,11 +40,26 @@ app.use(cors({
     // Check if origin is allowed
     // 1. Exact match in whitelist
     // 2. Local network IP (192.168.x.x or 10.x.x.x)
+    // 3. Applied Additive domains (main and subdomains)
     if (
       allowedOrigins.includes(origin) ||
       origin.startsWith('http://192.168.') ||
       origin.startsWith('http://10.') ||
-      origin.startsWith('http://localhost')
+      origin.startsWith('http://localhost') ||
+      origin.endsWith('.appliedadditive.com') ||
+      origin === 'https://appliedadditive.com' ||
+      origin === 'http://appliedadditive.com' ||
+      origin === 'appliedadditive.com' ||
+      origin === 'http://portal.appliedadditive.com' ||
+      origin === 'https://portal.appliedadditive.com' ||
+      origin === 'portal.appliedadditive.com' ||
+      origin === 'http://fixtures.appliedadditive.com' ||
+      origin === 'https://fixtures.appliedadditive.com' ||
+      origin === 'fixtures.appliedadditive.com' ||
+      origin === 'http://rapidtoolapi.appliedadditive.com' ||
+      origin === 'https://rapidtoolapi.appliedadditive.com' ||
+      origin === 'rapidtoolapi.appliedadditive.com' ||
+      origin.endsWith('.trycloudflare.com')
     ) {
       callback(null, true);
     } else {
